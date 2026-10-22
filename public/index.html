@@ -48,8 +48,8 @@
             padding: 12px;
             border-radius: 10px;
         }
-        
-        .form-label{
+
+        .form-label {
             color: #000000;
         }
 
@@ -87,7 +87,7 @@
                 </label>
 
                 <input type="email" class="form-control" id="email" name="email" placeholder="nombre@correo.com"
-                    autocomplete="username" required>
+                    maxlength="150" autocomplete="email" required>
             </div>
 
             <!-- Password -->
@@ -98,14 +98,15 @@
 
                 <div class="input-group">
                     <input type="password" class="form-control" id="password" name="password"
-                        placeholder="Ingresa tu contraseña" autocomplete="current-password" required>
+                        placeholder="Mínimo 8 caracteres" minlength="8" maxlength="1024" autocomplete="new-password"
+                        required>
                 </div>
             </div>
 
             <!-- Remember and forgot password -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="remember">
+                    <input class="form-check-input" type="checkbox" id="remember" name="remember" value="1">
                     <label class="form-check-label" for="remember">
                         Recordarme
                     </label>
@@ -137,55 +138,60 @@
     </div>
 
     <script>
-        
-const loginForm = document.getElementById('loginForm');
-const message = document.getElementById('message');
 
-loginForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
+        const loginForm = document.getElementById('loginForm');
+        const message = document.getElementById('message');
+        const remember = document.getElementById('remember').checked;
 
-    message.replaceChildren();
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
 
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const button = loginForm.querySelector('button[type="submit"]');
+            message.replaceChildren();
 
-    button.disabled = true;
-    button.textContent = 'Iniciando sesión...';
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const button = loginForm.querySelector('button[type="submit"]');
 
-    try {
-        const response = await fetch('../api/auth.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'same-origin',
-            body: JSON.stringify({ email, password })
+            button.disabled = true;
+            button.textContent = 'Iniciando sesión...';
+
+            try {
+                const response = await fetch('../api/auth.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        remember
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(
+                        result.message || 'No se pudo iniciar sesión.'
+                    );
+                }
+
+                message.className = 'alert alert-success mt-3';
+                message.textContent = result.message;
+
+                // Cambia esta ruta por la página principal de tu sistema.
+                window.location.href = '../public/dashboard.php';
+
+            } catch (error) {
+                message.className = 'alert alert-danger mt-3';
+                message.textContent =
+                    error.message || 'Error de conexión con el servidor.';
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Iniciar sesión';
+            }
         });
-
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
-            throw new Error(
-                result.message || 'No se pudo iniciar sesión.'
-            );
-        }
-
-        message.className = 'alert alert-success mt-3';
-        message.textContent = result.message;
-
-        // Cambia esta ruta por la página principal de tu sistema.
-        window.location.href = '../dashboard.php';
-
-    } catch (error) {
-        message.className = 'alert alert-danger mt-3';
-        message.textContent =
-            error.message || 'Error de conexión con el servidor.';
-    } finally {
-        button.disabled = false;
-        button.textContent = 'Iniciar sesión';
-    }
-});
 
     </script>
 

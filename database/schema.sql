@@ -112,3 +112,30 @@ INSERT INTO productos (codigo, nombre, categoria_id, precio, stock, stock_minimo
 -- Consulta de alerta de stock bajo:
 -- SELECT nombre, stock, stock_minimo FROM productos
 -- WHERE activo = 1 AND stock <= stock_minimo;
+
+CREATE TABLE IF NOT EXISTS remember_tokens (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT UNSIGNED NOT NULL,
+    selector CHAR(32) NOT NULL UNIQUE,
+    token_hash CHAR(64) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_remember_usuario (usuario_id),
+    INDEX idx_remember_expira (expires_at),
+    CONSTRAINT fk_remember_usuario
+        FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS password_resets (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT UNSIGNED NOT NULL,
+    token_hash CHAR(64) NOT NULL UNIQUE,
+    expires_at DATETIME NOT NULL,
+    creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_reset_usuario (usuario_id),
+    INDEX idx_reset_expira (expires_at),
+    CONSTRAINT fk_reset_usuario
+        FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB;
