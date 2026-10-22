@@ -129,7 +129,7 @@
 
         <p class="text-center mb-0 text-secondary">
             ¿No tienes una cuenta?
-            <a href="#" id="registerLink" class="text-decoration-none fw-semibold">
+            <a href="register.html" id="registerLink" class="text-decoration-none fw-semibold">
                 Regístrate
             </a>
         </p>
@@ -137,6 +137,56 @@
     </div>
 
     <script>
+        
+const loginForm = document.getElementById('loginForm');
+const message = document.getElementById('message');
+
+loginForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    message.replaceChildren();
+
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const button = loginForm.querySelector('button[type="submit"]');
+
+    button.disabled = true;
+    button.textContent = 'Iniciando sesión...';
+
+    try {
+        const response = await fetch('../api/auth.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ email, password })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(
+                result.message || 'No se pudo iniciar sesión.'
+            );
+        }
+
+        message.className = 'alert alert-success mt-3';
+        message.textContent = result.message;
+
+        // Cambia esta ruta por la página principal de tu sistema.
+        window.location.href = '../dashboard.php';
+
+    } catch (error) {
+        message.className = 'alert alert-danger mt-3';
+        message.textContent =
+            error.message || 'Error de conexión con el servidor.';
+    } finally {
+        button.disabled = false;
+        button.textContent = 'Iniciar sesión';
+    }
+});
+
     </script>
 
 </body>
