@@ -1,0 +1,13 @@
+# Credenciales y configuración local (NUNCA subir)
+config/config.php
+.env
+
+# Sistema y editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs y temporales
+*.log
+tmp/
